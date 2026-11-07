@@ -1,3 +1,7 @@
+locals {
+  project = coalesce(var.project, var.name_prefix)
+}
+
 resource "azurerm_logic_app_workflow" "this" {
   name                = "${var.name_prefix}-ag-slack-app"
   resource_group_name = var.resource_group
@@ -52,7 +56,7 @@ resource "azurerm_logic_app_action_http" "slack" {
 
   body = jsonencode({
     text = join("\n", [
-      "*Azure Monitor | ${var.project}*",
+      "*Azure Monitor | ${local.project} | ${var.designator}*",
       "_Channel: ${var.slack_channel}_",
       "",
       "@{if(equals(toLower(coalesce(triggerBody()?['data']?['essentials']?['monitorCondition'], 'Fired')), 'resolved'), ':white_check_mark: *RESOLVED*', ':rotating_light: *FIRED*')}",

@@ -3,7 +3,7 @@ module "azure-slack-alerts" {
   source = "../../bitbool-terraform/azure-slack-alerts"
 
   name_prefix    = 
-  project        = 
+  designator     = 
 
   resource_group = var.resource_group
   location       = var.location

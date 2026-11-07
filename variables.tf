@@ -8,6 +8,7 @@ variable "location" {
 
 variable "project" {
   type        = string
+  default = ""
 }
 
 variable "slack_channel" {
@@ -20,5 +21,7 @@ variable "slack_webhook_url" {
 
 variable "name_prefix" {
   type = string
-  default = "slack-ag"
+}
+variable "designator" {
+  type = string
 }
