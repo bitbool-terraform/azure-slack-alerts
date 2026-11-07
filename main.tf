@@ -15,7 +15,7 @@ resource "azurerm_logic_app_workflow" "this" {
   }
 
   parameters = {
-    slackWebhookUrl = jsonencode(var.slack_webhook_url)
+    slackWebhookUrl = var.slack_webhook_url
   }
 }
 
@@ -72,7 +72,7 @@ resource "azurerm_logic_app_action_http" "slack" {
 }
 
 resource "azurerm_monitor_action_group" "this" {
-  name                = "${var.name_prefix}-ag"
+  name                = "${var.name_prefix}-slack-ag"
   resource_group_name = var.resource_group
   short_name          = substr("${var.name_prefix}",-7,-1)
   logic_app_receiver {
