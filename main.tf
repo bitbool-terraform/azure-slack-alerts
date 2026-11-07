@@ -7,7 +7,7 @@ resource "azurerm_logic_app_workflow" "this" {
   resource_group_name = var.resource_group
   location            = var.location
   enabled             = true
-
+  tags                = var.tags
   workflow_parameters = {
     slackWebhookUrl = jsonencode({
       type = "SecureString"
