@@ -20,7 +20,7 @@ resource "azurerm_logic_app_workflow" "this" {
 }
 
 resource "azurerm_logic_app_trigger_http_request" "alert" {
-  name         = "azure-monitor-alert"
+  name         = "${var.name_prefix}-alert"
   logic_app_id = azurerm_logic_app_workflow.this.id
   method       = "POST"
 
@@ -43,7 +43,7 @@ resource "azurerm_logic_app_trigger_http_request" "alert" {
 }
 
 resource "azurerm_logic_app_action_http" "slack" {
-  name         = "send-to-slack"
+  name         = "${var.name_prefix}-slack"
   logic_app_id = azurerm_logic_app_workflow.this.id
 
   method = "POST"
@@ -61,11 +61,11 @@ resource "azurerm_logic_app_action_http" "slack" {
       "",
       "@{if(equals(toLower(coalesce(triggerBody()?['data']?['essentials']?['monitorCondition'], 'Fired')), 'resolved'), ':white_check_mark: *RESOLVED*', ':rotating_light: *FIRED*')}",
       "",
-      "*Alert:* @{coalesce(triggerBody()?['data']?['essentials']?['alertRule'], 'Azure Monitor notification')}",
+      "*Alert:* `@{coalesce(triggerBody()?['data']?['essentials']?['alertRule'], 'Azure Monitor notification')}`",
       "*Severity:* @{coalesce(triggerBody()?['data']?['essentials']?['severity'], 'N/A')}",
       "*Signal:* @{coalesce(triggerBody()?['data']?['essentials']?['signalType'], 'N/A')}",
       "*Resources:* @{join(coalesce(triggerBody()?['data']?['essentials']?['alertTargetIDs'], json('[]')), ', ')}",
-      "*Description:* @{coalesce(triggerBody()?['data']?['essentials']?['description'], 'No description provided')}",
+      "*Description:*\n```@{coalesce(triggerBody()?['data']?['essentials']?['description'], 'No description provided')}```",
       "*Time:* @{coalesce(triggerBody()?['data']?['essentials']?['resolvedDateTime'], triggerBody()?['data']?['essentials']?['firedDateTime'], 'N/A')}"
     ])
   })
@@ -74,7 +74,7 @@ resource "azurerm_logic_app_action_http" "slack" {
 resource "azurerm_monitor_action_group" "this" {
   name                = "${var.name_prefix}-slack-ag"
   resource_group_name = var.resource_group
-  short_name          = substr("${var.name_prefix}",-7,-1)
+  short_name          = substr("${var.name_prefix}",0,11)
   logic_app_receiver {
     name                    = "slack"
     resource_id             = azurerm_logic_app_workflow.this.id
