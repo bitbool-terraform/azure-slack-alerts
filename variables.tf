@@ -6,6 +6,10 @@ variable "location" {
   type = string
 }
 
+variable "tags" {
+  default = null
+}
+
 variable "project" {
   type        = string
   default = ""

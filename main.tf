@@ -75,6 +75,8 @@ resource "azurerm_monitor_action_group" "this" {
   name                = "${var.name_prefix}-slack-ag"
   resource_group_name = var.resource_group
   short_name          = substr("${var.name_prefix}",0,11)
+  tags                = var.tags
+
   logic_app_receiver {
     name                    = "slack"
     resource_id             = azurerm_logic_app_workflow.this.id
