@@ -1,8 +1,3 @@
-locals {
-  slack_essentials  = "triggerBody()?['data']?['essentials']"
-  slack_is_resolved = "equals(toLower(coalesce(${local.slack_essentials}?['monitorCondition'], 'Fired')), 'resolved')"
-}
-
 resource "azurerm_logic_app_workflow" "this" {
   name                = "${var.name_prefix}-ag-slack-app"
   resource_group_name = var.resource_group
@@ -70,7 +65,7 @@ resource "azurerm_logic_app_action_http" "slack" {
 
           "${var.name_prefix}-*${var.designator}* | `@{last(split(join(coalesce(${local.slack_essentials}?['alertTargetIDs'], createArray('unknown')), ', '), '/'))}`| @{coalesce(${local.slack_essentials}?['severity'], 'N/A')}",
 
-          "@{coalesce(${local.slack_essentials}?['description'], 'No description provided')}"
+          "${local.slack_value_line}@{coalesce(${local.slack_essentials}?['description'], 'No description provided')}"
         ])
       }
     ]
