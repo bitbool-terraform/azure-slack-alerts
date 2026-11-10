@@ -1,5 +1,6 @@
 locals {
-  project = coalesce(var.project, var.name_prefix)
+  slack_essentials  = "triggerBody()?['data']?['essentials']"
+  slack_is_resolved = "equals(toLower(coalesce(${local.slack_essentials}?['monitorCondition'], 'Fired')), 'resolved')"
 }
 
 resource "azurerm_logic_app_workflow" "this" {
@@ -54,20 +55,25 @@ resource "azurerm_logic_app_action_http" "slack" {
     "Content-Type" = "application/json"
   }
 
+
   body = jsonencode({
-    text = join("\n", [
-      "*Azure Monitor | ${local.project} | ${var.designator}*",
-      "_Channel: ${var.slack_channel}_",
-      "",
-      "@{if(equals(toLower(coalesce(triggerBody()?['data']?['essentials']?['monitorCondition'], 'Fired')), 'resolved'), ':white_check_mark: *RESOLVED*', ':rotating_light: *FIRED*')}",
-      "",
-      "*Alert:* `@{coalesce(triggerBody()?['data']?['essentials']?['alertRule'], 'Azure Monitor notification')}`",
-      "*Severity:* @{coalesce(triggerBody()?['data']?['essentials']?['severity'], 'N/A')}",
-      "*Signal:* @{coalesce(triggerBody()?['data']?['essentials']?['signalType'], 'N/A')}",
-      "*Resources:* @{join(coalesce(triggerBody()?['data']?['essentials']?['alertTargetIDs'], json('[]')), ', ')}",
-      "*Description:*\n```@{coalesce(triggerBody()?['data']?['essentials']?['description'], 'No description provided')}```",
-      "*Time:* @{coalesce(triggerBody()?['data']?['essentials']?['resolvedDateTime'], triggerBody()?['data']?['essentials']?['firedDateTime'], 'N/A')}"
-    ])
+    attachments = [
+      {
+        color = "@{if(${local.slack_is_resolved}, 'good', 'danger')}"
+
+        fallback = "${var.name_prefix}-${var.designator}: @{coalesce(${local.slack_essentials}?['alertRule'], 'Azure Alert')}"
+
+        mrkdwn_in = ["text"]
+
+        text = join("\n", [
+          "*@{if(${local.slack_is_resolved}, '🟢 RESOLVED', '🔴 FIRED')}* · *@{coalesce(${local.slack_essentials}?['alertRule'], 'Azure Alert')}*",
+
+          "${var.name_prefix}-*${var.designator}* | `@{last(split(join(coalesce(${local.slack_essentials}?['alertTargetIDs'], createArray('unknown')), ', '), '/'))}`| @{coalesce(${local.slack_essentials}?['severity'], 'N/A')}",
+
+          "@{coalesce(${local.slack_essentials}?['description'], 'No description provided')}"
+        ])
+      }
+    ]
   })
 }
 

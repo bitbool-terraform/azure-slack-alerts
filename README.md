@@ -8,7 +8,6 @@ module "azure-slack-alerts" {
   resource_group = var.resource_group
   location       = var.location
 
-  slack_channel     = "#<channel>"
   slack_webhook_url = data.azurerm_key_vault_secret.slack_webhook.value
 }
 ```
