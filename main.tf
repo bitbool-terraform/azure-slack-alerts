@@ -61,7 +61,7 @@ resource "azurerm_logic_app_action_http" "slack" {
         mrkdwn_in = ["text"]
 
         text = join("\n", [
-          "*@{if(${local.slack_is_resolved}, '🟢 RESOLVED', '🔴 FIRED')}* · *@{coalesce(${local.slack_essentials}?['alertRule'], 'Azure Alert')}*",
+          "*@{if(${local.slack_is_resolved}, '🟢 RESOLVED', '🔴 FIRED')}* · *<${local.slack_alert_url}|@{coalesce(${local.slack_essentials}?['alertRule'], 'Azure Alert')}>*",
 
           "${var.name_prefix}-*${var.designator}* | `@{last(split(join(coalesce(${local.slack_essentials}?['alertTargetIDs'], createArray('unknown')), ', '), '/'))}`| @{coalesce(${local.slack_essentials}?['severity'], 'N/A')}",
 
