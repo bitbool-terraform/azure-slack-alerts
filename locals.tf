@@ -12,10 +12,14 @@ locals {
   slack_scoped_alert_id = "if(empty(${local.slack_essentials}?['alertTargetIDs']), ${local.slack_essentials}?['alertId'], concat(first(coalesce(${local.slack_essentials}?['alertTargetIDs'], createArray(''))), '/providers/Microsoft.AlertsManagement/alerts/', last(split(${local.slack_essentials}?['alertId'], '/'))))"
 
   slack_alert_url = "@{concat('https://portal.azure.com/#view/Microsoft_Azure_Monitoring_Alerts/AlertDetails.ReactView/alertId~/',uriComponent(${local.slack_scoped_alert_id}),'/invokedFrom/CopyLinkFeature')}"
+
+
+  slack_dimensions = "triggerBody()?['data']?['alertContext']?['condition']?['allOf']?[0]?['dimensions']"
+
+  slack_dimension_suffix = join("", [
+    "@{if(empty(${local.slack_dimensions}), '', concat(",
+    "decodeUriComponent('%0A'), ",
+    "'*', coalesce(${local.slack_dimensions}?[0]?['name'], 'Dimension'), ",
+    "'*: `', coalesce(${local.slack_dimensions}?[0]?['value'], 'N/A'), '`'))}"
+  ]) 
 }
-
-
-
-
-
-  

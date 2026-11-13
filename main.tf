@@ -65,7 +65,7 @@ resource "azurerm_logic_app_action_http" "slack" {
 
           "${var.name_prefix}-*${var.designator}* | `@{last(split(join(coalesce(${local.slack_essentials}?['alertTargetIDs'], createArray('unknown')), ', '), '/'))}`| @{coalesce(${local.slack_essentials}?['severity'], 'N/A')}",
 
-          "${local.slack_value_line}@{coalesce(${local.slack_essentials}?['description'], 'No description provided')}"
+          "${local.slack_value_line}@{coalesce(${local.slack_essentials}?['description'], 'No description provided')}${local.slack_dimension_suffix}"
         ])
       }
     ]

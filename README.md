@@ -1,5 +1,6 @@
 | Version    | Changes |
 | -------- | ------- |
+| v1.3.0  | Added dimensionality reporting capability.|
 | v1.2.1  | Added clickable alert.   |
 | v1.1.0  | First stable.   |
 
